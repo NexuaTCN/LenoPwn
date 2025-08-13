@@ -69,48 +69,61 @@ namespace LenoPwn.Service
 
         private async Task ServiceWorker(CancellationToken token)
         {
-            InitializeAudioMonitors();
-            WmiController.SyncMicMuteLed();
-            WmiController.SyncSpeakerMuteLed();
-
-            InitializeConfigAndWatcher();
-
-            _watcher = new ManagementEventWatcher(@"\\.\root\WMI", "SELECT * FROM LENOVO_UTILITY_EVENT");
-            _watcher.EventArrived += OnEventArrived;
-            _watcher.Start();
-            Log("WMI watcher started. Service is now listening for key presses.");
-
-            while (!token.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    _pipeClient?.Dispose();
-                    _pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.Asynchronous);
-                    Log("Attempting to connect to agent pipe...");
+                InitializeAudioMonitors();
+                WmiController.SyncMicMuteLed();
+                WmiController.SyncSpeakerMuteLed();
 
-                    await _pipeClient.ConnectAsync(5000, token);
-                    _pipeWriter = new StreamWriter(_pipeClient, Encoding.UTF8) { AutoFlush = true };
-                    Log("Successfully connected to agent pipe!");
+                await PollForInitialConfigurationAsync(token);
 
-                    await token.AsTask().ContinueWith(t => { }, TaskContinuationOptions.OnlyOnCanceled);
-                }
-                catch (OperationCanceledException)
+                if (token.IsCancellationRequested) return;
+
+                _watcher = new ManagementEventWatcher(@"\\.\root\WMI", "SELECT * FROM LENOVO_UTILITY_EVENT");
+                _watcher.EventArrived += OnEventArrived;
+                _watcher.Start();
+                Log("WMI watcher started. Service is now listening for key presses.");
+
+                while (!token.IsCancellationRequested)
                 {
-                    Log("Service worker cancellation requested.");
-                    break;
+                    try
+                    {
+                        _pipeClient?.Dispose();
+                        _pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.Asynchronous);
+                        Log("Attempting to connect to agent pipe...");
+
+                        await _pipeClient.ConnectAsync(5000, token);
+                        _pipeWriter = new StreamWriter(_pipeClient, Encoding.UTF8) { AutoFlush = true };
+                        Log("Successfully connected to agent pipe!");
+
+                        await token.AsTask().ContinueWith(t => { }, TaskContinuationOptions.OnlyOnCanceled);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Log("Service worker cancellation requested.");
+                        break;
+                    }
+                    catch (System.TimeoutException)
+                    {
+                        Log("Timeout connecting to agent pipe. Will retry in 5 seconds...", EventLogEntryType.Warning);
+                        _pipeClient?.Dispose();
+                        await Task.Delay(5000, token);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log($"Pipe client error: {ex.Message}. Will retry in 5 seconds...", EventLogEntryType.Warning);
+                        _pipeClient?.Dispose();
+                        await Task.Delay(5000, token);
+                    }
                 }
-                catch (System.TimeoutException)
-                {
-                    Log("Timeout connecting to agent pipe. Will retry in 5 seconds...", EventLogEntryType.Warning);
-                    _pipeClient?.Dispose();
-                    await Task.Delay(5000, token);
-                }
-                catch (Exception ex)
-                {
-                    Log($"Pipe client error: {ex.Message}. Will retry in 5 seconds...", EventLogEntryType.Warning);
-                    _pipeClient?.Dispose();
-                    await Task.Delay(5000, token);
-                }
+            }
+            catch (OperationCanceledException)
+            {
+                Log("Service worker was cancelled during startup.");
+            }
+            catch (Exception ex)
+            {
+                Log($"An unhandled exception occurred in the service worker: {ex.Message}", EventLogEntryType.Error);
             }
 
             Log("Service worker loop ended.");
@@ -219,17 +232,28 @@ namespace LenoPwn.Service
         }
 
         #region User Config and Audio
-        private void InitializeConfigAndWatcher()
+        private async Task PollForInitialConfigurationAsync(CancellationToken token)
         {
-            var configPath = GetConfigPathForActiveUser();
-            if (configPath == null)
+            const int retryDelayMs = 10000; // 10 seconds
+
+            while (!token.IsCancellationRequested)
             {
-                Log("Could not determine config path for active user. Caching will be disabled.", EventLogEntryType.Warning);
-                return;
+                string? configPath = GetConfigPathForActiveUser();
+
+                if (!string.IsNullOrEmpty(configPath) && LoadConfiguration(configPath))
+                {
+                    Log("Initial configuration loaded successfully.");
+                    InitializeConfigWatcher(configPath);
+                    return;
+                }
+
+                Log($"Configuration not found or failed to load. Retrying in {retryDelayMs / 1000} seconds...", EventLogEntryType.Warning);
+                await Task.Delay(retryDelayMs, token);
             }
+        }
 
-            LoadConfiguration(configPath);
-
+        private void InitializeConfigWatcher(string configPath)
+        {
             var configDirectory = Path.GetDirectoryName(configPath);
             if (configDirectory != null)
             {
@@ -243,23 +267,22 @@ namespace LenoPwn.Service
                 {
                     lock (_configLock)
                     {
-                        _cachedConfig = new AppConfig();
+                        _cachedConfig = null;
                     }
-                    Log("Config file deleted. Cache cleared.");
+                    Log("Config file deleted. Cache cleared. Service will attempt to reload.");
                 };
                 _configWatcher.EnableRaisingEvents = true;
                 Log($"Watching for config changes at: {configPath}");
             }
         }
 
-        private void LoadConfiguration(string configPath)
+        private bool LoadConfiguration(string configPath)
         {
             try
             {
                 if (!File.Exists(configPath))
                 {
-                    Log($"Config file not found at {configPath}. Awaiting creation.", EventLogEntryType.Warning);
-                    return;
+                    return false;
                 }
 
                 var json = File.ReadAllText(configPath);
@@ -285,10 +308,16 @@ namespace LenoPwn.Service
                     _cachedConfig = config;
                 }
                 Log("Configuration reloaded and cached successfully.");
+                return true;
             }
             catch (Exception ex)
             {
                 Log($"Failed to load or parse configuration: {ex.Message}", EventLogEntryType.Error);
+                lock (_configLock)
+                {
+                    _cachedConfig = null;
+                }
+                return false;
             }
         }
 
@@ -303,7 +332,7 @@ namespace LenoPwn.Service
                 uint size = 260;
                 var profileDir = new StringBuilder((int)size);
                 if (!GetUserProfileDirectory(userToken, profileDir, ref size)) return null;
-                var configFolder = Path.Combine(profileDir.ToString(), "AppData", "Local", "LenovoHotkeyService");
+                var configFolder = Path.Combine(profileDir.ToString(), "AppData", "Local", "LenoPwn");
                 return Path.Combine(configFolder, ConfigFileName);
             }
             catch { return null; }
