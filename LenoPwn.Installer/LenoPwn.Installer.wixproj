@@ -1,0 +1,8 @@
+﻿<Project Sdk="WixToolset.Sdk/6.0.0">
+  <ItemGroup>
+    <ProjectReference Include="..\LenoPwn.ConfigUI\LenoPwn.ConfigUI.csproj" />
+    <ProjectReference Include="..\LenoPwn.Service\LenoPwn.Service.csproj" />
+    <ProjectReference Include="..\LenoPwn.Agent\LenoPwn.Agent.csproj" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="6.0.0" />
+  </ItemGroup>
+</Project>

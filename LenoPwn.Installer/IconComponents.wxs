@@ -1,0 +1,91 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+	<Fragment>
+		<ComponentGroup Id="IconComponents" Directory="IconsFolder">
+
+			<Component Id="Icon_background_dark" Guid="{3E2A01A3-A87C-4C78-831C-640C4A470987}">
+				<File Id="File_background_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\background_dark.png" />
+			</Component>
+			<Component Id="Icon_background_light" Guid="{D4D1E8F8-9A78-4A1B-A71C-9E460B8E3B66}">
+				<File Id="File_background_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\background_light.png" />
+			</Component>
+
+			<Component Id="Icon_mic_mute_dark" Guid="{A5E8E4A9-3E9E-4B46-834D-22B4345B1F9F}">
+				<File Id="File_mic_mute_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\microphone_mute_dark.png" />
+			</Component>
+			<Component Id="Icon_mic_mute_light" Guid="{B1A9A9C3-4A6E-4F2A-A969-9F2B8E0B3C9E}">
+				<File Id="File_mic_mute_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\microphone_mute_light.png" />
+			</Component>
+			<Component Id="Icon_mic_unmute_dark" Guid="{C7B4F9B3-7E5F-4E8A-9E6A-1B8E0A9D3F8B}">
+				<File Id="File_mic_unmute_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\microphone_unmute_dark.png" />
+			</Component>
+			<Component Id="Icon_mic_unmute_light" Guid="{D9A2B1C8-5A3E-4D6C-8E2B-9C0F1E7A7D5A}">
+				<File Id="File_mic_unmute_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\microphone_unmute_light.png" />
+			</Component>
+
+			<Component Id="Icon_speaker_mute_dark" Guid="{E5A9B8D4-6E3C-4C8B-9E3A-6B1E3C8A7D3A}">
+				<File Id="File_speaker_mute_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\speaker_mute_dark.png" />
+			</Component>
+			<Component Id="Icon_speaker_mute_light" Guid="{F1B9C4E8-8A9F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_speaker_mute_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\speaker_mute_light.png" />
+			</Component>
+			<Component Id="Icon_speaker_unmute_dark" Guid="{0A9B8C7D-5E4F-4C8A-9E3A-5B0E3C8A7D3A}">
+				<File Id="File_speaker_unmute_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\speaker_unmute_dark.png" />
+			</Component>
+			<Component Id="Icon_speaker_unmute_light" Guid="{1B9C4E8A-9A8F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_speaker_unmute_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\speaker_unmute_light.png" />
+			</Component>
+
+			<Component Id="Icon_fn_lock_on_dark" Guid="{2C8B7A6D-4E9A-4C8A-9E3A-6B0E3C8A7D3A}">
+				<File Id="File_fn_lock_on_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\fn_lock_on_dark.png" />
+			</Component>
+			<Component Id="Icon_fn_lock_on_light" Guid="{3D8A6B5C-8A7F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_fn_lock_on_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\fn_lock_on_light.png" />
+			</Component>
+			<Component Id="Icon_fn_lock_off_dark" Guid="{4E9A5B4C-3E8A-4C8A-9E3A-6B0E3C8A7D3A}">
+				<File Id="File_fn_lock_off_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\fn_lock_off_dark.png" />
+			</Component>
+			<Component Id="Icon_fn_lock_off_light" Guid="{5A8B4C3D-8A7F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_fn_lock_off_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\fn_lock_off_light.png" />
+			</Component>
+
+			<Component Id="Icon_camera_on_dark" Guid="{6B7A3D2E-2E7A-4C8A-9E3A-6B0E3C8A7D3A}">
+				<File Id="File_camera_on_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\camera_on_dark.png" />
+			</Component>
+			<Component Id="Icon_camera_on_light" Guid="{7C6B2E1D-8A7F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_camera_on_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\camera_on_light.png" />
+			</Component>
+			<Component Id="Icon_camera_off_dark" Guid="{8D5A1C0F-1E6A-4C8A-9E3A-6B0E3C8A7D3A}">
+				<File Id="File_camera_off_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\camera_off_dark.png" />
+			</Component>
+			<Component Id="Icon_camera_off_light" Guid="{9E4B0D9A-8A7F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_camera_off_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\camera_off_light.png" />
+			</Component>
+
+			<Component Id="Icon_kb_backlight_off_dark" Guid="{AF3A9C8B-0E5A-4C8A-9E3A-6B0E3C8A7D3A}">
+				<File Id="File_kb_backlight_off_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\kb_backlight_off_dark.png" />
+			</Component>
+			<Component Id="Icon_kb_backlight_off_light" Guid="{BE2B8D7A-8A7F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_kb_backlight_off_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\kb_backlight_off_light.png" />
+			</Component>
+			<Component Id="Icon_kb_backlight_low_dark" Guid="{CD1A7E69-FD4A-4C8A-9E3A-6B0E3C8A7D3A}">
+				<File Id="File_kb_backlight_low_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\kb_backlight_low_dark.png" />
+			</Component>
+			<Component Id="Icon_kb_backlight_low_light" Guid="{DC0B6F58-8A7F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_kb_backlight_low_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\kb_backlight_low_light.png" />
+			</Component>
+			<Component Id="Icon_kb_backlight_high_dark" Guid="{EDFA5A47-EC3A-4C8A-9E3A-6B0E3C8A7D3A}">
+				<File Id="File_kb_backlight_high_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\kb_backlight_high_dark.png" />
+			</Component>
+			<Component Id="Icon_kb_backlight_high_light" Guid="{FECA4B36-8A7F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_kb_backlight_high_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\kb_backlight_high_light.png" />
+			</Component>
+			<Component Id="Icon_kb_backlight_auto_dark" Guid="{01DB3C25-DB2A-4C8A-9E3A-6B0E3C8A7D3A}">
+				<File Id="File_kb_backlight_auto_dark" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\kb_backlight_auto_dark.png" />
+			</Component>
+			<Component Id="Icon_kb_backlight_auto_light" Guid="{12CA2D14-8A7F-4D2A-A95C-6B0E3C7A6D2A}">
+				<File Id="File_kb_backlight_auto_light" Source="$(var.LenoPwn.Agent.ProjectDir)Icons\kb_backlight_auto_light.png" />
+			</Component>
+
+		</ComponentGroup>
+	</Fragment>
+</Wix>

@@ -1,0 +1,145 @@
+﻿<ui:FluentWindow
+    x:Class="LenoPwn.ConfigUI.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:LenoPwn.ConfigUI"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="Hotkey Configuration"
+    Width="800"
+    Height="500"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
+    WindowStartupLocation="CenterScreen"
+    ExtendsContentIntoTitleBar="True"
+    mc:Ignorable="d">
+
+    <ui:FluentWindow.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="TextPayloadTemplate">
+                <ui:TextBox Text="{Binding Payload, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ComboBoxPayloadTemplate">
+                <ComboBox ItemsSource="{Binding Source={x:Static local:PayloadOptions.SpecialActions}}"
+                          DisplayMemberPath="DisplayName"
+                          SelectedValuePath="InternalName"
+                          SelectedValue="{Binding Payload, UpdateSourceTrigger=PropertyChanged}"
+                          VerticalContentAlignment="Center"/>
+            </DataTemplate>
+
+            <DataTemplate x:Key="SendKeysPayloadTemplate">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding Payload.KeyComboText, TargetNullValue='(Not set)'}" VerticalAlignment="Center" Margin="5,0"/>
+                    <ui:Button Grid.Column="1" Content="Detect" Click="DetectSendKeys_Click" Padding="12,5"/>
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <ui:TitleBar Title="Hotkey Configuration" ShowMaximize="False" ShowMinimize="True"/>
+        <Grid Margin="15,40,15,15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ui:DataGrid x:Name="DgvHotkeys" Grid.Row="0" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding HotkeyMappings}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="2*" Binding="{Binding Description}" Header="Key Description" IsReadOnly="True" />
+                    <DataGridTemplateColumn Width="1.5*" Header="Action">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Action}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <ComboBox ItemsSource="{Binding Source={x:Static local:PayloadOptions.Actions}}"
+                                          DisplayMemberPath="DisplayName"
+                                          SelectedValuePath="InternalName"
+                                          SelectedValue="{Binding Action, UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="3*" Header="Payload">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ContentControl Content="{Binding}">
+                                    <ContentControl.Style>
+                                        <Style TargetType="ContentControl">
+                                            <Setter Property="ContentTemplate" Value="{StaticResource TextPayloadTemplate}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Action}" Value="special">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource ComboBoxPayloadTemplate}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Action}" Value="sendkeys">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource SendKeysPayloadTemplate}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ContentControl.Style>
+                                </ContentControl>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="Auto" Header="Show Pop-up">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding ShowPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <CheckBox.Style>
+                                        <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Action}" Value="special">
+                                                    <Setter Property="IsEnabled" Value="True" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </CheckBox.Style>
+                                </CheckBox>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ui:Button x:Name="BtnDelete" Appearance="Transparent" Click="BtnDelete_Click" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Delete this hotkey mapping" Padding="12,5">
+                                    <TextBlock Text="X" FontWeight="Bold" />
+                                </ui:Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </ui:DataGrid>
+            <Grid Grid.Row="1" Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="0">
+                    <TextBlock Text="Theme:" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <ComboBox x:Name="CmbTheme" Width="120" SelectionChanged="CmbTheme_SelectionChanged">
+                        <ComboBoxItem Content="Dark"/>
+                        <ComboBoxItem Content="Light"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right">
+                    <ui:Button Content="Profiles" Click="BtnProfiles_Click" Margin="0,0,10,0"/>
+                    <ui:Button Content="Rediscover Keys" Click="BtnRediscover_Click" Margin="0,0,10,0"/>
+                    <ui:Button Content="Save" Click="BtnSave_Click" Appearance="Primary" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</ui:FluentWindow>

@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+	<Package Name="LenoPwn"
+             Manufacturer="Nexua_TCN"
+             Version="1.0.0.0"
+             Language="1033"
+             Scope="perMachine"
+             UpgradeCode="{2EDB874B-0B92-46EA-B25B-8AC82CF7039F}">
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+
+		<StandardDirectory Id="ProgramFiles6432Folder">
+			<Directory Id="INSTALLFOLDER" Name="LenoPwn">
+				<Directory Id="IconsFolder" Name="Icons" />
+			</Directory>
+		</StandardDirectory>
+		<StandardDirectory Id="ProgramMenuFolder" />
+		<StandardDirectory Id="StartupFolder" />
+		<StandardDirectory Id="DesktopFolder" />
+
+		<Feature Id="ProductFeature" Title="LenoPwn" Level="1">
+			<ComponentGroupRef Id="ServiceComponents" />
+			<ComponentGroupRef Id="ApplicationComponents" />
+			<ComponentGroupRef Id="AgentComponents" />
+			<ComponentGroupRef Id="IconComponents" />
+		</Feature>
+
+		<InstallExecuteSequence>
+			<ScheduleReboot After="InstallFinalize" />
+		</InstallExecuteSequence>
+	</Package>
+
+	<Fragment>
+		<ComponentGroup Id="ServiceComponents" Directory="INSTALLFOLDER">
+			<Component Guid="{A6166E75-2A3A-4E13-817B-8502262A3AEC}">
+				<File Id="LenoPwn.Service.exe" Source="$(var.LenoPwn.Service.TargetDir)publish\LenoPwn.Service.exe" KeyPath="yes" />
+				<ServiceInstall Id="ServiceInstaller" Name="LenoPwn.Service" DisplayName="LenoPwn Hotkey Service" Description="Custom service to handle special function keys..." Type="ownProcess" Start="auto" ErrorControl="normal" />
+				<ServiceControl Id="ServiceControl" Name="LenoPwn.Service" Start="install" Stop="both" Remove="uninstall" />
+				<util:ServiceConfig ServiceName="LenoPwn.Service" FirstFailureActionType="restart" SecondFailureActionType="restart" ThirdFailureActionType="restart" ResetPeriodInDays="1" RestartServiceDelayInSeconds="60" />
+				<RegistryValue Root="HKLM" Key="Software\Nexua_TCN\LenoPwn" Name="InstallDir" Type="string" Value="[INSTALLFOLDER]" />
+			</Component>
+		</ComponentGroup>
+
+		<ComponentGroup Id="ApplicationComponents">
+			<Component Directory="INSTALLFOLDER" Guid="{742A4896-6E19-4EB5-B23E-0E83A50F8F8B}">
+				<File Id="LenoPwn.ConfigUI.exe" Source="$(var.LenoPwn.ConfigUI.TargetDir)publish\LenoPwn.ConfigUI.exe" KeyPath="yes" />
+			</Component>
+			<Component Directory="ProgramMenuFolder" Guid="{B59775DE-FD27-4F4F-8987-D4FE4DD87C7E}">
+				<Shortcut Id="ApplicationStartMenuShortcut" Name="Configure Hotkeys" Description="Configure LenoPwn Hotkey Service" Target="[INSTALLFOLDER]LenoPwn.ConfigUI.exe" WorkingDirectory="INSTALLFOLDER" />
+				<RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+				<RegistryValue Root="HKCU" Key="Software\Nexua_TCN\LenoPwn" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+			</Component>
+			<Component
+			Directory="DesktopFolder" Guid="{A417F8F8-5A93-40B5-B0A3-9A5F354E0D73}">
+				<Shortcut Id="DesktopShortcut" Name="Configure Hotkeys" Description="Configure LenoPwn Hotkey Service" Target="[INSTALLFOLDER]LenoPwn.ConfigUI.exe" WorkingDirectory="INSTALLFOLDER" />
+				<RegistryValue Root="HKCU" Key="Software\Nexua_TCN\LenoPwn" Name="desktop_shortcut" Type="integer" Value="1" KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+
+		<ComponentGroup Id="AgentComponents">
+			<Component Directory="INSTALLFOLDER" Guid="{25BB30B1-8872-49C6-A08A-3E10CA1EAD49}">
+				<File Id="LenoPwn.Agent.exe" Source="$(var.LenoPwn.Agent.TargetDir)publish\LenoPwn.Agent.exe" KeyPath="yes" />
+			</Component>
+			<Component Id="AgentStartupRegistry" Guid="{B6955B7A-1E6A-4E9A-9A4E-527D6A8E4C7A}">
+				<RegistryValue Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Run" Name="LenoPwnAgent" Type="string" Value="&quot;[INSTALLFOLDER]LenoPwn.Agent.exe&quot;" KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+
+	</Fragment>
+</Wix>
