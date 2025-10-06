@@ -72,8 +72,7 @@ Once the original service is disabled, you can proceed with the LenoPwn installa
 
 #### Build Steps
 ```bash
-# Replace 'your-username' with your actual GitHub username or organization
-git clone [https://github.com/your-username/LenoPwn.git](https://github.com/your-username/LenoPwn.git)
+git clone [https://github.com/NexuaTCN/LenoPwn.git](https://github.com/your-username/LenoPwn.git)
 cd LenoPwn
 dotnet restore
 dotnet build --configuration Release
